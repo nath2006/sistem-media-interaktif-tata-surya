@@ -1,22 +1,36 @@
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { Link } from "wouter";
 import AppLayout from "../templates/AppLayout";
 import Brand from "../molecules/Brand";
 import AudioControls from "../molecules/AudioControls";
 import DetailPanel from "../molecules/DetailPanel";
 import SolarSystemCanvas from "../organisms/SolarSystemCanvas";
+import OnboardingOverlay from "../molecules/OnboardingOverlay";
 
 export default function Home() {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.4);
+  const [volume, setVolume] = useState(0.5);
   const [selected, setSelected] = useState(null);
+  
+  // Hardcoded to standard "Realistic" speed
+  const orbitMul = 1.0; 
+  const spinMul = 1.0;
 
-  const facts = useMemo(() => ({
-    mercury: ["Diameter ~4,879 km", "Tidak punya satelit", "Tahun 88 hari"],
-    venus: ["Atmosfer CO₂ tebal", "Terpanas di tata surya", "Rotasi sangat lambat"],
-    earth: ["70% air", "1 satelit (Bulan)", "Mendukung kehidupan"],
-    mars: ["Planet merah", "Olympus Mons", "Punya 2 satelit"],
-  }), []);
+  // Onboarding state
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("hasVisitedSpace");
+    if (!hasVisited) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const finishOnboarding = () => {
+    setShowOnboarding(false);
+    localStorage.setItem("hasVisitedSpace", "true");
+  };
 
   const toggleAudio = async () => {
     const a = audioRef.current;
@@ -31,7 +45,7 @@ export default function Home() {
         setIsPlaying(false);
       }
     } catch (e) {
-      console.warn("Audio blocked by browser policy:", e);
+      console.warn("Audio blocked:", e);
     }
   };
 
@@ -42,33 +56,52 @@ export default function Home() {
   };
 
   const onSelectPlanet = (p) => {
-    setSelected({
-      key: p.key,
-      name: p.name,
-      desc: p.desc,
-      facts: facts[p.key] ?? [],
-    });
+    setSelected(p);
   };
 
   const resetFocus = () => setSelected(null);
 
   return (
-    <AppLayout
-      topLeft={<Brand />}
-      topRight={
-        <AudioControls
-          isPlaying={isPlaying}
-          onToggle={toggleAudio}
-          volume={volume}
-          onVolume={onVolume}
+    <>
+      <AppLayout
+        topLeft={
+           <div className="flex flex-col">
+             <h1 className="text-3xl md:text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 drop-shadow-md">
+               Tata Surya Kita
+             </h1>
+             <div className="flex gap-3 items-center mt-1">
+                <span className="text-xs md:text-sm text-cyan-200/70 font-mono tracking-widest">INTERACTIVE LEARNING</span>
+                <Link href="/gravity" className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded border border-white/20 text-[10px] text-cyan-300 font-bold tracking-wider uppercase transition-colors">
+                    Mode Gravitasi ➜
+                </Link>
+             </div>
+           </div>
+        }
+        topRight={
+          <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md p-2 rounded-full border border-white/10">
+            <AudioControls
+              isPlaying={isPlaying}
+              onToggle={toggleAudio}
+              volume={volume}
+              onVolume={onVolume}
+            />
+          </div>
+        }
+      >
+        <SolarSystemCanvas
+          onSelectPlanet={onSelectPlanet}
+          onReset={resetFocus}
+          selectedKey={selected?.key ?? null}
+          speedMultiplier={orbitMul}
+          spinMultiplier={spinMul}
         />
-      }
-    >
-      <SolarSystemCanvas onSelectPlanet={onSelectPlanet} onReset={resetFocus} selectedKey={selected?.key ?? null} />
 
-      <audio ref={audioRef} src="/audio/space.mp3" loop preload="auto" />
+        <audio ref={audioRef} src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_40df09b537.mp3" loop preload="auto" />
 
-      <DetailPanel selected={selected} onReset={resetFocus} />
-    </AppLayout>
+        <DetailPanel selected={selected} onReset={resetFocus} />
+      </AppLayout>
+
+      {showOnboarding && <OnboardingOverlay onComplete={finishOnboarding} />}
+    </>
   );
 }

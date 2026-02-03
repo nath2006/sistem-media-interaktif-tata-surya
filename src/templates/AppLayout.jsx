@@ -1,6 +1,8 @@
 import TopBar from "../molecules/TopBar";
 import GlassCard from "../atoms/GlassCard";
 
+const HEADER_H = 84;
+
 export default function AppLayout({ topLeft, topRight, children }) {
   return (
     <div className="relative h-full w-full bg-black overflow-hidden">
@@ -15,16 +17,9 @@ export default function AppLayout({ topLeft, topRight, children }) {
 
       <TopBar left={topLeft} right={topRight} />
 
-      <div className="pointer-events-none absolute right-4 top-24 z-20 hidden md:block">
-        <GlassCard className="pointer-events-auto max-w-sm p-4 text-white">
-          <div className="font-semibold">Cara pakai</div>
-          <ul className="mt-2 space-y-1 text-sm text-white/75">
-            <li>• Klik planet untuk fokus</li>
-            <li>• Drag untuk rotasi view</li>
-            <li>• Scroll untuk zoom (khusus canvas)</li>
-          </ul>
-        </GlassCard>
-      </div>
+      {/* 'Cara pakai' redundant, removed */}
     </div>
   );
 }
+
+export { HEADER_H };

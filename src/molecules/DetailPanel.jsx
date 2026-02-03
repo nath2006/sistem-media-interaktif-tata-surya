@@ -1,60 +1,95 @@
-import Button from "../atoms/Button";
-import GlassCard from "../atoms/GlassCard";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DetailPanel({ selected, onReset }) {
-  const accent =
-    selected?.key === "mars" ? "from-orange-400/25 to-rose-500/10" :
-    selected?.key === "earth" ? "from-cyan-400/25 to-blue-500/10" :
-    selected?.key === "venus" ? "from-amber-300/25 to-yellow-500/10" :
-    "from-sky-400/20 to-fuchsia-500/10";
-
   return (
-    <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-full max-w-md p-4">
-      <GlassCard
-        className={[
-          "pointer-events-auto h-full rounded-3xl overflow-hidden transition-all duration-300",
-          selected ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0",
-        ].join(" ")}
-      >
-        <div className={`h-full bg-gradient-to-b ${accent}`}>
-          <div className="flex h-full flex-col">
-            <div className="flex items-start justify-between p-5">
-              <div>
-                <div className="text-xs text-white/60">DETAIL PLANET</div>
-                <div className="mt-1 text-2xl font-semibold text-white">
-                  {selected?.name ?? "—"}
+    <AnimatePresence>
+      {selected && (
+        <motion.div
+          initial={{ x: "100%", opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: "120%", opacity: 0 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+          className="fixed right-0 top-0 bottom-0 w-full md:w-[450px] bg-black/60 backdrop-blur-xl border-l border-white/10 p-6 overflow-y-auto z-40 shadow-2xl"
+        >
+          <button
+            onClick={onReset}
+            className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white"
+          >
+            ❌
+          </button>
+
+          <div className="mt-12">
+            <h2
+              className="text-5xl font-bold mb-2 font-display uppercase tracking-widest drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+              style={{ color: selected.planetColor }}
+            >
+              {selected.name}
+            </h2>
+            <div className="h-1 w-24 bg-gradient-to-r from-white/50 to-transparent mb-6 rounded-full" />
+
+            <p className="text-xl text-blue-100 italic mb-8 leading-relaxed border-l-4 border-white/30 pl-4">
+              "{selected.desc}"
+            </p>
+
+            {/* Scientific Stats Grid */}
+            <div className="grid grid-cols-2 gap-3 mb-8">
+              {Object.entries({
+                "Massa": selected.stats?.mass,
+                "Diameter": selected.stats?.diameter,
+                "Gravitasi": selected.stats?.gravity,
+                "Suhu Rata-rata": selected.stats?.temp,
+                "Satu Hari": selected.stats?.day,
+                "Satu Tahun": selected.stats?.year,
+                "Jumlah Bulan": selected.stats?.moons,
+              }).map(([label, value]) => (value !== undefined &&
+                <div key={label} className="bg-white/10 p-3 rounded-xl border border-white/5">
+                  <div className="text-xs text-white/50 uppercase tracking-wider mb-1">{label}</div>
+                  <div className="text-sm font-bold text-white font-mono">{value}</div>
                 </div>
-              </div>
-              <Button onClick={onReset} className="rounded-2xl">Reset Focus</Button>
+              ))}
             </div>
 
-            <div className="px-5">
-              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                <div className="text-white/85 text-sm leading-relaxed">
-                  {selected?.desc ?? "Klik planet untuk melihat deskripsi dan fakta menarik."}
-                </div>
+            <div className="space-y-6">
+              {/* Fun Facts Section */}
+              <div className="bg-white/5 rounded-2xl p-5 border border-white/10 hover:border-white/30 transition-colors">
+                <h3 className="text-xl font-bold text-yellow-300 mb-4 flex items-center gap-2">
+                  🌟 Fakta Unik
+                </h3>
+                <ul className="space-y-3">
+                  {selected.details.funFacts.map((fact, i) => (
+                    <li key={i} className="flex gap-3 text-white/90">
+                      <span className="text-cyan-400 mt-1">✦</span>
+                      <span>{fact}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {!!selected?.facts?.length && (
-                <div className="mt-4">
-                  <div className="text-sm font-semibold text-white">Fakta singkat</div>
-                  <div className="mt-2 grid gap-2">
-                    {selected.facts.map((f, i) => (
-                      <div key={i} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/80">
-                        {f}
+              {/* Geographic Details Section */}
+              {selected.details.latlon && selected.details.latlon.length > 0 && (
+                <div className="bg-white/5 rounded-2xl p-5 border border-white/10 hover:border-white/30 transition-colors">
+                  <h3 className="text-xl font-bold text-green-300 mb-4 flex items-center gap-2">
+                    📍 Tempat Menarik
+                  </h3>
+                  <div className="space-y-4">
+                    {selected.details.latlon.map((item, i) => (
+                      <div key={i} className="group">
+                        <div className="font-bold text-lg text-white mb-1 group-hover:text-green-200 transition-colors">
+                          {item.name}
+                        </div>
+                        <div className="text-sm text-white/60 mb-1 font-mono">
+                           {item.lat !== "—" ? `${item.lat}, ${item.lon}` : ""}
+                        </div>
+                        <div className="text-gray-300 text-sm">{item.what}</div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-
-            <div className="mt-auto p-5 text-xs text-white/50">
-              Tips: audio butuh klik user dulu (autoplay policy browser).
-            </div>
           </div>
-        </div>
-      </GlassCard>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

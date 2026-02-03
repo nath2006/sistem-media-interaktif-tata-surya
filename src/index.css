@@ -1,8 +1,42 @@
 @import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Quicksand:wght@400;700&display=swap');
+
+@theme {
+  --font-display: 'Fredoka', cursive;
+  --font-body: 'Quicksand', sans-serif;
+  --animate-bounce-in: bounceIn 0.8s cubic-bezier(0.8, 0, 0.2, 1);
+  @keyframes bounceIn {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+}
+
 html, body, #root { 
   height: 100%; 
 }
+
 body { 
   margin: 0; 
-  overflow-x: hidden;
+  overflow: hidden;
+  background-color: #050510;
+  color: #fff;
+  font-family: var(--font-body);
+}
+
+/* Custom scrollbar for detail panel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }

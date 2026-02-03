@@ -1,9 +1,10 @@
-import { useRef, useState, useMemo, useEffect } from "react";
+import { useRef, useState, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Stars, Text } from "@react-three/drei";
 import * as THREE from "three";
 import AppLayout from "../templates/AppLayout";
 import { Link } from "wouter";
+import { planetData } from "../data/planets";
 
 // --- Spacetime Grid Component ---
 function SpacetimeGrid({ objects }) {
@@ -24,21 +25,17 @@ function SpacetimeGrid({ objects }) {
     // Deform grid based on objects (gravity wells)
     for (let i = 0; i < positions.count; i++) {
         const x = positions.getX(i);
-        const y = positions.getY(i); // Plane is actually X-Y in geometry, but we rotate it -X/2
-        // Wait, PlaneGeometry is X-Y. We want X-Z plane usually.
-        // Let's assume standard PlaneGeometry and we rotate mesh -PI/2 on X.
-        // So vertex (x,y,0) -> world (x, 0, y) effectively after rotation?
-        // Let's keep geometry flat X-Y, and deform Z (which becomes Y world).
+        const y = positions.getY(i); // Plane is actually X-Y in geometry
         
         let zDeform = 0;
 
         objects.forEach(obj => {
            // OBJ position is world coordinates. 
            // Grid is centered at 0,0,0.
-           // Distance from vertex (world x,z) to object (x,z)
            const dx = x - obj.position[0];
            const dy = y - (-obj.position[2]); // Z in world is -Y in plane local coords if rotated?
-           // Simpler: Just map distance in 2D plane
+           // Actually let's assume standard plane mapping here for simplicity
+           // const dy = y - obj.position[2]; 
            
            const distSq = dx*dx + dy*dy;
            // Gravity formula simplified: -Mass / (Distance + epsilon)
@@ -70,10 +67,7 @@ function SpacetimeGrid({ objects }) {
 }
 
 // --- Interactive Planet ---
-function DraggablePlanet({ config, position, onPositionChange }) {
-    // Simplified drag logic or just static place for now
-    // For MVP phase 2, let's just render them. 
-    // Interaction: click to drag?
+function DraggablePlanet({ config, position }) {
     return (
         <mesh position={position}>
             <sphereGeometry args={[config.radius, 32, 32]} />
@@ -86,10 +80,6 @@ function DraggablePlanet({ config, position, onPositionChange }) {
 }
 
 // --- Main Page Component ---
-import { planetData } from "../data/planets";
-
-// ... imports
-
 export default function GravitySimulation() {
   const [objects, setObjects] = useState(() => {
      // Initial Sun
@@ -112,10 +102,6 @@ export default function GravitySimulation() {
      });
      return init;
   });
-
-  const addPlanet = (mass) => {
-    // ... REST OF FUNCTION
-
 
   const addPlanet = (mass) => {
      // Random pos near center

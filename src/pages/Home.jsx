@@ -96,7 +96,7 @@ export default function Home() {
           spinMultiplier={spinMul}
         />
 
-        <audio ref={audioRef} src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_40df09b537.mp3" loop preload="auto" />
+        <audio ref={audioRef} src="/audio/bg-music.mp3" loop preload="auto" />
 
         <DetailPanel selected={selected} onReset={resetFocus} />
       </AppLayout>

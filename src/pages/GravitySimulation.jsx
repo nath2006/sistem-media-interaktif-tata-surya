@@ -157,7 +157,7 @@ export default function GravitySimulation() {
         </div>
         
         <div className="absolute top-24 left-8 max-w-xs text-white/70 text-sm bg-black/40 p-4 rounded-xl border border-white/10">
-            <h3 className="text-white font-bold mb-2">Hukum Gravitasi Einstein/Newton</h3>
+            <h3 className="text-white font-bold mb-2">Relativitas Umum Einstein</h3>
             <p>
                 Lihat bagaimana massa benda melengkungkan ruang-waktu (jaring-jaring).
                 Semakin besar massa (seperti Matahari), semakin dalam lengkungannya.
